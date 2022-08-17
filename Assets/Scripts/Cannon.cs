@@ -1,20 +1,21 @@
-using System.Collections;
 using UnityEngine;
 
-public class Cannon : MonoBehaviour
+public class Cannon : ObjectPool
 {
-    [SerializeField] private Transform startPoint;
     [SerializeField] private GameObject gate;
     [Header("Projectiles")]
     [SerializeField] private GameObject ballPrefab;
-    [SerializeField] private GameObject coinBallPrefab;
+    [SerializeField] private GameObject coinPrefab;
     [SerializeField] private GameObject bombPrefab;
+    private float cooldown;
+    private float passedTime = 0;
     private AudioSource audioSource;
     private Transform[] gateCorners = new Transform[4];
-    private GameManager gameManager;
 
     private void Start()
     {
+        FillingPool();
+
         transform.LookAt(Vector3.zero);
 
         for (int i = 0; i < 4; i++)
@@ -23,39 +24,50 @@ public class Cannon : MonoBehaviour
         }
 
         audioSource = GetComponent<AudioSource>();
-        gameManager = GameManager.instance;
-
-        StartCoroutine(Shoot(GameBalance.GetCannonCooldown()));
+        cooldown = GameBalance.GetCannonCooldown();
     }
 
-    private IEnumerator Shoot(float cooldown)
+    private void Update()
     {
-        yield return new WaitForSeconds(Random.Range(0.4f, cooldown));
+        passedTime += Time.deltaTime;
 
-        while (true)
+        if (passedTime >= cooldown)
         {
-            yield return new WaitForSeconds(cooldown);
-
-            GameObject ball = Instantiate(SelectRandomPrefab(), startPoint.position, Quaternion.identity);
-            gameManager.curLevelGameObjects.Add(ball);
-            audioSource.Play();
-
-            ball.GetComponent<Rigidbody>().velocity = CalculateVelocityByTime(cooldown);
+            if (TryGetObject(out GameObject ball))
+            {
+                passedTime = 0;
+                SetBall(ball);
+            }
         }
     }
 
-    private GameObject SelectRandomPrefab()
+    private void FillingPool()
     {
-        int randomNumber = Random.Range(1, 101);
-        if (randomNumber <= 30)
+        for (int i = 0; i < capacity; i++)
         {
-            return ballPrefab;
+            if (i <= 3)
+            {
+                Initialize(ballPrefab);
+            }
+            else if (i > 7)
+            {
+                Initialize(coinPrefab);
+            }
+            else if (i > 3 && i <= 7)
+            {
+                Initialize(bombPrefab);
+            }
         }
-        else if (randomNumber > 70)
-        {
-            return coinBallPrefab;
-        }
-        return bombPrefab;
+    }
+
+    private void SetBall(GameObject ball)
+    {
+        ball.transform.position = startPoint.position;
+        ball.SetActive(true);
+
+        audioSource.Play();
+
+        ball.GetComponent<Rigidbody>().velocity = CalculateVelocityByTime(cooldown);
     }
 
     private Vector3 CalculateVelocityByTime(float time)
@@ -67,6 +79,7 @@ public class Cannon : MonoBehaviour
         float y = Random.Range(min_y, max_y);
         float z = (gateCorners[1].position.z - startPoint.position.z) / time;
 
+        //return new Vector3(x, max_y, z);
         return new Vector3(x, y, z);
     }
 }

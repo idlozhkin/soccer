@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 23737651838244920}
   - component: {fileID: 135134225773752490}
   - component: {fileID: 2976326069531895360}
-  - component: {fileID: 3889663618389520912}
+  - component: {fileID: -3133355380209556509}
   m_Layer: 0
   m_Name: Coin Ball
   m_TagString: Coin
@@ -116,7 +116,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &3889663618389520912
+--- !u!114 &-3133355380209556509
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -125,9 +125,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 1975457108487340}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6b556522577cf634aa8f6f17fd52e546, type: 3}
+  m_Script: {fileID: 11500000, guid: 9f6e03c941d39044397fb076cacdb4c7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  catchAudioClip: {fileID: 8300000, guid: ee87860714fd68a48a80d9f684e22617, type: 3}
   goalAudioClip: {fileID: 8300000, guid: c5b66104e1a00a148923e1fa831729ec, type: 3}
-  coinAudioClip: {fileID: 8300000, guid: 71cf73eef84b30f40957a9153d229969, type: 3}
+  playerAudioClip: {fileID: 8300000, guid: 71cf73eef84b30f40957a9153d229969, type: 3}

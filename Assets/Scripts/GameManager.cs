@@ -1,75 +1,125 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Events;
 using TMPro;
+using Zenject;
 
 public class GameManager : MonoBehaviour
 {
-    public static GameManager instance = null;
-    [SerializeField] private Timer timer;
-    [SerializeField] private TextMeshProUGUI coinCount;
-    [SerializeField] private TextMeshProUGUI costText;
-    [SerializeField] private Slider progressBar;
     [SerializeField] private GameObject cannonPrefab;
-    [SerializeField] private GameObject panel;
-    [HideInInspector] public List<GameObject> curLevelGameObjects;
-    #region "Game variables"
+    [Inject] private DiContainer diContainer;
+    [Inject] private StartGameScreen startGameScreen;
+    [Inject] private GameScreen gameScreen;
+    [Inject] private PauseScreen pauseScreen;
+    [Inject] private GameOverScreen gameOverScreen;
+    private List<GameObject> curLevelGameObjects = new List<GameObject>();
     private int scoreAim;
     private int curPoints = 0;
     private int coins;
-    private int levelCost;
-    #endregion
+    private float time;
+
+    public event UnityAction<float> TimeChanged;
+    public event UnityAction<int> CoinsChanged;
+    public event UnityAction<int, int> ProgressChanged;
+    public event UnityAction<int> CostChanged;
 
     private void Awake()
     {
-        if (instance == null)
-        {
-            instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else if (instance == this)
-        {
-            Destroy(gameObject);
-        }
+        // if (Application.isEditor)
+        // {
+        //     PlayerPrefs.DeleteAll(); //delete in build 
+        // }
+        coins = PlayerPrefs.GetInt("Coins", 0);
 
-        GameBalance.AddDifficulty(PlayerPrefs.GetInt("Difficulty", 1));
+        GameBalance.AddDifficulty(PlayerPrefs.GetInt("Difficulty", 0));
+    }
+
+
+    private void OnEnable()
+    {
+        startGameScreen.PlayButtonClick += OnPlayButtonClick;
+        gameScreen.PauseButtonClick += OnPauseButtonClick;
+        pauseScreen.UnpauseButtonClick += OnUnpauseButtonClick;
+        pauseScreen.MuteButtonClick += ChangeVolume;
+        pauseScreen.BuyButtonClick += BuyLevel;
+        gameOverScreen.RestartButtonClick += StartLevel;
+    }
+
+    private void OnDisable()
+    {
+        startGameScreen.PlayButtonClick -= OnPlayButtonClick;
+        gameScreen.PauseButtonClick -= OnPauseButtonClick;
+        pauseScreen.UnpauseButtonClick -= OnUnpauseButtonClick;
+        pauseScreen.MuteButtonClick -= ChangeVolume;
+        pauseScreen.BuyButtonClick -= BuyLevel;
+        gameOverScreen.RestartButtonClick -= StartLevel;
     }
 
     private void Start()
     {
-        AddCoins(PlayerPrefs.GetInt("Coins", 0));
-        StartLevel();
+        startGameScreen.Close();
+        pauseScreen.Close();
+        gameOverScreen.Close();
+        gameScreen.Close();
+
+        CoinsChanged?.Invoke(coins);
+        Time.timeScale = 0;
+        time = GameBalance.GetRoundDuration();
+        startGameScreen.Open();
     }
 
     private void Update()
     {
-        ProgressBarChanging();
+        time -= Time.deltaTime;
+        if (time <= 0)
+        {
+            EndTime();
+        }
     }
 
-    public void AddPoints(int points)
+    private void OnUnpauseButtonClick()
     {
-        curPoints = Mathf.Min(curPoints + points, scoreAim);
+        pauseScreen.Close();
+        Time.timeScale = 1;
+        gameScreen.Open();
     }
 
-    public void RemovePoints(int points)
+    private void OnPlayButtonClick()
     {
-        curPoints = Mathf.Max(curPoints - points, 0);
+        startGameScreen.Close();
+        StartLevel();
     }
 
-    public void AddCoins(int coins)
+    private void OnPauseButtonClick()
     {
-        this.coins += coins;
-        coinCount.text = this.coins.ToString();
-        PlayerPrefs.SetInt("Coins", this.coins);
+        CostChanged?.Invoke(GameBalance.GetLevelCost());
+        gameScreen.Close();
+        pauseScreen.Open();
+        Time.timeScale = 0;
     }
 
-    public void BuyLevel()
+    private void EndTime()
     {
-        levelCost = GameBalance.GetLevelCost();
+        if (curPoints >= scoreAim)
+        {
+            GameBalance.AddDifficulty(1);
+            StartLevel();
+            OnPauseButtonClick();
+        }
+        else
+        {
+            StartLevel();
+            OnPauseButtonClick();
+        }
+    }
+    private void BuyLevel()
+    {
+        int levelCost = GameBalance.GetLevelCost();
         if (levelCost <= coins)
         {
             coins -= levelCost;
-            coinCount.text = this.coins.ToString();
+            CoinsChanged?.Invoke(coins);
             PlayerPrefs.SetInt("Coins", coins);
 
             GameBalance.AddDifficulty(1);
@@ -77,53 +127,29 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void Pause()
+    private void StartLevel()
     {
-        Time.timeScale = 0;
-        panel.SetActive(true);
-
-        levelCost = GameBalance.GetLevelCost();
-        costText.text = $"{levelCost} coins";
-    }
-
-    public void UnPause()
-    {
+        gameScreen.Open();
+        time = GameBalance.GetRoundDuration();
         Time.timeScale = 1;
-        panel.SetActive(false);
-    }
-
-    public void StartLevel()
-    {
-        Pause();
         ClearCurLevelGameObjects();
-        timer.SetTime();
+        TimeChanged?.Invoke(time);
 
         scoreAim = GameBalance.GetScoreAim();
         curPoints = 0;
 
-        progressBar.maxValue = scoreAim;
-        progressBar.value = curPoints;
+        ProgressChanged?.Invoke(curPoints, scoreAim);
 
         foreach (var position in GameBalance.GetCannonsPosition())
         {
-            GameObject cannon = Instantiate(cannonPrefab, position, Quaternion.identity);
+            GameObject cannon = diContainer.InstantiatePrefab(cannonPrefab, position, Quaternion.identity, transform);
             curLevelGameObjects.Add(cannon);
         }
     }
 
-    public void ChangeVolume()
+    private void ChangeVolume()
     {
         AudioListener.volume = 1 - AudioListener.volume;
-    }
-
-    private void ProgressBarChanging()
-    {
-        progressBar.value = curPoints;
-        if (curPoints >= scoreAim)
-        {
-            GameBalance.AddDifficulty(1);
-            StartLevel();
-        }
     }
 
     private void ClearCurLevelGameObjects()
@@ -134,5 +160,23 @@ public class GameManager : MonoBehaviour
         }
 
         curLevelGameObjects.Clear();
+    }
+    public void AddPoints(int points)
+    {
+        curPoints = Mathf.Min(curPoints + points, scoreAim);
+        ProgressChanged?.Invoke(curPoints, scoreAim);
+    }
+
+    public void RemovePoints(int points)
+    {
+        curPoints = Mathf.Max(curPoints - points, 0);
+        ProgressChanged?.Invoke(curPoints, scoreAim);
+    }
+
+    public void AddCoins(int coins)
+    {
+        this.coins += coins;
+        CoinsChanged?.Invoke(this.coins);
+        PlayerPrefs.SetInt("Coins", this.coins);
     }
 }

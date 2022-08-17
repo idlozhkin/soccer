@@ -35,7 +35,7 @@ public class PushingCharacter : MonoBehaviour
         if (selectedRigidbody)
         {
             Vector3 mousePositionOffset = Vector3.Scale(targetCamera.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, selectionDistance)) - targetPos, new Vector3(1, 1, 0));
-            selectedRigidbody.velocity = (startPos + mousePositionOffset - selectedRigidbody.transform.position) * addingForce * Time.deltaTime;
+            selectedRigidbody.velocity = (startPos + mousePositionOffset - selectedRigidbody.transform.position) * addingForce;
         }
     }
 

@@ -2,7 +2,7 @@ using UnityEngine;
 
 public static class GameBalance
 {
-    public static int difficulty;
+    private static int difficulty = 0;
 
     public static void AddDifficulty(int addingDifficulty)
     {
@@ -12,17 +12,17 @@ public static class GameBalance
 
     public static float GetRoundDuration()
     {
-        return 60 + (difficulty - 1) * 5;
+        return 40 + difficulty * 5;
     }
 
     public static float GetCannonCooldown()
     {
-        return Mathf.Max(2.0f - 0.05f * (difficulty - 1), 0.4f);
+        return Mathf.Max(1.4f - 0.05f * difficulty, 0.4f) + Random.Range(0, Mathf.Min(difficulty, 8) * 0.1f);
     }
 
     public static int GetScoreAim()
     {
-        return 10 + (difficulty - 1) * 2;
+        return 4 + difficulty * 2;
     }
 
     public static Vector3[] GetCannonsPosition()
@@ -47,6 +47,6 @@ public static class GameBalance
 
     public static int GetLevelCost()
     {
-        return 2 + 2 * (difficulty - 1);
+        return 2 + 2 * difficulty;
     }
 }

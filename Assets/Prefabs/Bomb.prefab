@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 3695658181345463381}
   - component: {fileID: 7226014468223343058}
   - component: {fileID: 4021093998271955421}
-  - component: {fileID: 9027588081477245650}
+  - component: {fileID: -8495266858783446562}
   m_Layer: 0
   m_Name: Bomb
   m_TagString: Bomb
@@ -115,7 +115,7 @@ SphereCollider:
   serializedVersion: 2
   m_Radius: 0.15854642
   m_Center: {x: 0, y: 0.15557058, z: 0}
---- !u!114 &9027588081477245650
+--- !u!114 &-8495266858783446562
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -124,9 +124,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 2902959157444570496}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6b556522577cf634aa8f6f17fd52e546, type: 3}
+  m_Script: {fileID: 11500000, guid: cb6ea333413f8fc4796b34740f3923ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  catchAudioClip: {fileID: 8300000, guid: ee87860714fd68a48a80d9f684e22617, type: 3}
-  goalAudioClip: {fileID: 8300000, guid: c5b66104e1a00a148923e1fa831729ec, type: 3}
-  coinAudioClip: {fileID: 8300000, guid: 71cf73eef84b30f40957a9153d229969, type: 3}
+  goalAudioClip: {fileID: 8300000, guid: ee87860714fd68a48a80d9f684e22617, type: 3}
+  playerAudioClip: {fileID: 8300000, guid: c5b66104e1a00a148923e1fa831729ec, type: 3}

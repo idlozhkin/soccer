@@ -1007,7 +1007,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7187397425290910770}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.261, z: 0.203}
+  m_LocalPosition: {x: 0, y: 0.317, z: 0.38}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1063,12 +1063,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   startPoint: {fileID: 7187397425290910771}
-  gate: {fileID: 7235440762721947492, guid: 7b1c4d80927e57c4698fcefee9a67b70, type: 3}
+  capacity: 10
   ballPrefab: {fileID: 1975457108487340, guid: ec3e8f3ed27e2244caaedaf589590a03, type: 3}
-  coinBallPrefab: {fileID: 1975457108487340, guid: 87b5aeb1eea141b4596af47eb08b7b98,
-    type: 3}
+  coinPrefab: {fileID: 1975457108487340, guid: 87b5aeb1eea141b4596af47eb08b7b98, type: 3}
   bombPrefab: {fileID: 2902959157444570496, guid: af921197e4162754ca2ba3b14576f29b,
     type: 3}
+  gate: {fileID: 7235440762721947492, guid: 7b1c4d80927e57c4698fcefee9a67b70, type: 3}
 --- !u!82 &7187397425815325610
 AudioSource:
   m_ObjectHideFlags: 0
