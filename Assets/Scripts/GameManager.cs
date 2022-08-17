@@ -26,10 +26,10 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
-        // if (Application.isEditor)
-        // {
-        //     PlayerPrefs.DeleteAll(); //delete in build 
-        // }
+        if (Application.isEditor)
+        {
+            PlayerPrefs.DeleteAll();
+        }
         coins = PlayerPrefs.GetInt("Coins", 0);
 
         GameBalance.AddDifficulty(PlayerPrefs.GetInt("Difficulty", 0));
